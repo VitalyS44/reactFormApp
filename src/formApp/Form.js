@@ -1,9 +1,9 @@
 import React from 'react';
 import './index.css';
-// import ReactDOM from 'react-dom';
-// import citys from './city.json';
-import groups from './group.json';
 import types from './type.json';
+import storageWorker from './../storageWorker';
+import MapView from './../mapApp/MapView';
+import Applications from './../applicationsApp/Applications';
 
 
 class Form extends React.Component {
@@ -11,57 +11,73 @@ class Form extends React.Component {
     super();
 
     this.state = {
+      requests: [],
       citys: [],
+      groups: [],
       value: '',
-      idCity: '',
-      city: '',
-      group: '',
+      city: null,
+      group: null,
       type: '',
     };
 
-    // this.getSity = this.getSity.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleCity = this.handleCity.bind(this);
     this.handleGroup = this.handleGroup.bind(this);
     this.handleType = this.handleType.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange(event) {
     //получаем значения из textarea
-    // console.log(this.state.value);
     this.setState({ value: event.target.value });
   }
 
-  handleSubmit() {
+  handleSubmit(e) {
+    e.preventDefault();
+    this.setState((state) => ({
+      ...state,
+      requests: [...state.requests, {
+        city: this.state.city,
+        value: this.state.value,
+        group: this.state.group,
+        type: this.state.type
+      }]
+    }))
+    const requests = storageWorker.getRequests();
+    storageWorker.saveRequests([...requests, {
+      city: this.state.city,
+      value: this.state.value,
+      group: this.state.group,
+      type: this.state.type
+    }])
 
+    //Чистим textarea
+    this.setState({ value: '' });
   }
 
   //Получаем город
   handleCity(event) {
     this.setState({ city: event.target.value });
-    // this.setState({ idCity: event.target.dataset.id });
-
+    const selectedCity = this.state.citys.find(city => city.name === event.target.value);
+    this.setState({ city: selectedCity })
   }
 
 
   //Получаем группу
   handleGroup(event) {
-    // console.log(event.target);
-    this.setState({ group: event.target.value });
+    const selectedGroup = this.state.groups.find(group => group.name === event.target.value);
+    this.setState({ group: selectedGroup });
+
   }
 
   //Получаем тип
   handleType(event) {
-    console.log(this.state.type);
     this.setState({ type: event.target.value });
   }
 
-
-
-
   componentDidMount() {
-
     //Отправляем запрос на получение городов
+    this.setState({ requests: storageWorker.getRequests() })
     fetch('/filters', {
     })
       .then((response) => {
@@ -70,50 +86,74 @@ class Form extends React.Component {
       .then((data) => {
         this.setState({
           citys: data
+        }, () => {
+          this.setState({ city: this.state.citys[0] })
         })
-        console.log(this.state.citys);
       });
 
+    fetch('/inbox-service/subjects', {
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        this.setState({
+          groups: data.content
+        }, () => {
+          this.setState({ group: this.state.groups[0] })
+        })
+      });
   }
+
+  // componentDidUpdate(_, state) {
+  //   // Отправляем запрос на получение типа (запрос возвращается пустым)
+  //   if (state.city && state.group) {
+  //     fetch(`/inbox-service/subsubjects/subject/${state.group.id}/region/${state.city.id}`)
+  //   }
+  // }
 
   render() {
     return (
-      <div className="form">
-        <h1>Добро пожаловать, заполните форму!</h1>
-        <form className="setForm" onSubmit={this.handleSubmit}>
-          <textarea onChange={this.handleChange} value={this.state.value} />
-          <select onChange={this.handleCity} value={this.state.city}>
-            {
-              this.state.citys.map(city => {
-                return (
-                  <option key={city.id} value={city.name}>{city.name}</option>
-                )
-              })
-            }
-          </select>
-          <h2>Выберите тип</h2>
-          <select onChange={this.handleType} value={this.state.type}>
-            {
-              types.content.map(type => {
-                return (
-                  <option key={type.id} data-subject={type.subject.id} value={type.name}>{type.name}</option>
-                )
-              })
-            }
-          </select>
-          <h2>Выберите группу</h2>
-          <select onChange={this.handleGroup} value={this.state.group}>
-            {
-              groups.content.map(group => {
-                return (
-                  <option key={group.id} data-id={group.id} value={group.name}>{group.name}</option>
-                )
-              })
-            }
-          </select>
-          <input type="submit" value="Отправить" />
-        </form>
-      </div>
+      <>
+        <div className="form">
+          <h1>Добро пожаловать, заполните форму!</h1>
+          <form className="setForm" onSubmit={this.handleSubmit}>
+            <textarea onChange={this.handleChange} value={this.state.value} />
+            <select onChange={this.handleCity}>
+              {
+                this.state.citys.map(city => {
+                  return (
+                    <option key={city.id} value={city.name}>{city.name}</option>
+                  )
+                })
+              }
+            </select>
+            <h2>Выберите группу</h2>
+            <select onChange={this.handleGroup} >
+              {
+                this.state.groups.length && this.state.groups.map(group => {
+                  return (
+                    <option key={group.id} value={group.name}>{group.name}</option>
+                  )
+                })
+              }
+            </select>
+            <h2>Выберите тип</h2>
+            <select onChange={this.handleType} >
+              {
+                types.content.map(type => {
+                  return (
+                    <option key={type.id} value={type.name}>{type.name}</option>
+                  )
+                })
+              }
+            </select>
+            <input type="submit" value="Отправить" />
+          </form>
+        </div>
+        <MapView />
+        <Applications requests={this.state.requests} />
+      </>
     )
   }
 }

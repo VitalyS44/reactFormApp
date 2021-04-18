@@ -8,7 +8,6 @@
     "@testing-library/react": "^11.2.2",
     "@testing-library/user-event": "^12.2.2",
     "leaflet": "^1.7.1",
-    "no-cors-proxy": "^1.0.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-leaflet": "^3.1.0",

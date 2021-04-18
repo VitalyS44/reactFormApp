@@ -9,8 +9,6 @@ import reportWebVitals from './reportWebVitals';
 ReactDOM.render(
   <React.StrictMode>
     <Form />
-    <MapView />
-    <Applications />
   </React.StrictMode>,
   document.getElementById('root')
 );
