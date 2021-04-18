@@ -16,23 +16,40 @@ class Applications extends React.Component {
     const buttons = Math.ceil(requests.length / perPage)
     const toShow = requests.slice(current * perPage, (current + 1) * perPage)
     return (
-      < div className="appli" >
-        {[...new Array(buttons).keys()].map(i => {
-          return <button onClick={() => this.setState({ current: i })}>{i + 1}</button>
-        })}
+      <>
         <h2>Ранее поданные заявки</h2>
-        <div className="requests">
-          {toShow.map(req => {
-            return (
-              <div className="appli-container">
-                <p>{req.value}</p>
-                <p>{req.city.name}</p>
-                <p>{req.group.name}</p>
-              </div>
-            )
-          })}
-        </div>
-      </div >
+        <div className="applications" >
+          <div className="pagination">
+            {[...new Array(buttons).keys()].map(i => {
+              return <button onClick={() => this.setState({ current: i })}>{i + 1}</button>
+            })}
+          </div>
+          <div className="requests">
+            {toShow.map(req => {
+              return (
+                <div className="appli-container">
+                  <div className="wrapper">
+                    <p className="name">Текст обращения</p>
+                    <p>{req.value}</p>
+                  </div>
+                  <div className="wrapper">
+                    <p className="name">Регион</p>
+                    <p>{req.city.name}</p>
+                  </div>
+                  <div className="wrapper">
+                    <p className="name">Выбраная группа</p>
+                    <p>{req.group.name}</p>
+                  </div>
+                  <div className="wrapper">
+                    <p className="name">Выбранный тип</p>
+                    <p>{req.type}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div >
+      </>
     )
   }
 }

@@ -106,7 +106,7 @@ class Form extends React.Component {
   }
 
   // componentDidUpdate(_, state) {
-  //   // Отправляем запрос на получение типа (запрос возвращается пустым)
+  // Отправляем запрос на получение типа (запрос возвращается пустым)
   //   if (state.city && state.group) {
   //     fetch(`/inbox-service/subsubjects/subject/${state.group.id}/region/${state.city.id}`)
   //   }
@@ -119,6 +119,7 @@ class Form extends React.Component {
           <h1>Добро пожаловать, заполните форму!</h1>
           <form className="setForm" onSubmit={this.handleSubmit}>
             <textarea onChange={this.handleChange} value={this.state.value} />
+            <h2>Выберите регион</h2>
             <select onChange={this.handleCity}>
               {
                 this.state.citys.map(city => {
